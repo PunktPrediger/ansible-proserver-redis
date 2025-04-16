@@ -5,7 +5,6 @@
 
 - name: Enable Redis Sentinel
   when:
-    - ansible_system == 'Linux'
     - redis.replication.sentinel
   service:
     name: "{{ redis.service.sentinel }}"

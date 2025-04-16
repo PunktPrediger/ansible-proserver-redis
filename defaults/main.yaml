@@ -1,3 +1,4 @@
+redis_replication_main_name:
 redis:
   prefix:
     config: >-
@@ -13,7 +14,12 @@ redis:
       {%- else -%}
         redis
       {%- endif -%}
-    sentinel: redis-sentinel
+    sentinel: >-
+      {%- if ansible_system == 'Linux' -%}
+        redis-sentinel
+      {%- else -%}
+        sentinel
+      {%- endif -%}
   redis.conf: {}
   sentinel.conf: {}
   replication:
