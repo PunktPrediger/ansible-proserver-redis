@@ -31,3 +31,9 @@
     path: "{{ redis.prefix.config }}/sentinel.conf"
     regexp: "mymaster"
     replace: "{{ redis_replication_main_name }}"
+
+- name: Ensure user proserver is appended to group redis
+  user:
+    name: proserver
+    groups: redis
+    append: yes

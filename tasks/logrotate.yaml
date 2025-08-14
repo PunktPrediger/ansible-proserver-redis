@@ -1,0 +1,12 @@
+---
+- name: Ensure redis logrotation is configured
+  copy:
+    content: |
+      /var/log/redis/*.log {
+        missingok
+        delaycompress
+        notifempty
+      }
+    dest: /usr/local/etc/logrotate.d/redis.conf
+    owner: root
+    mode: "0644"
