@@ -33,6 +33,7 @@
     replace: "{{ redis_replication_main_name }}"
 
 - name: Ensure user proserver is appended to group redis
+  notify: Restart Redis
   user:
     name: proserver
     groups: redis
