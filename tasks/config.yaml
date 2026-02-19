@@ -27,7 +27,7 @@
   notify: Restart Redis Sentinel
 
 - name: Replace "mymaster" lines with the name of the current master
-  when: redis.replication.sentinel and ansible_system == "FreeBSD"
+  when: redis.replication.sentinel and redis_replication_main_name is defined and redis_replication_main_name != None
   ansible.builtin.replace:
     path: "{{ redis.prefix.config }}/sentinel.conf"
     regexp: "mymaster"

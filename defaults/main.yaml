@@ -1,5 +1,5 @@
 ---
-redis_replication_main_name:
+redis_replication_main_name: mymaster
 redis:
   prefix:
     config: >-
