@@ -7,3 +7,6 @@
 
 - name: Configure Redis
   ansible.builtin.include_tasks: config.yaml
+
+- name: Configure Logrotate for Redis
+  ansible.builtin.include_tasks: logrotate.yaml
