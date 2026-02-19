@@ -25,7 +25,3 @@ redis:
   sentinel.conf: {}
   replication:
     sentinel: no
-  repository:
-    apt:
-      key_url:
-      repository:
