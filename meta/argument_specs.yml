@@ -1,0 +1,67 @@
+---
+argument_specs:
+  main:
+    options:
+      redis:
+        type: dict
+        description: >
+          Redis configuration. All keys are optional; defaults are defined in
+          defaults/main.yaml.
+        options:
+          prefix:
+            type: dict
+            description: Path and naming prefixes (config directory, etc.).
+            options:
+              config:
+                type: str
+                description: >
+                  Directory containing redis.conf and sentinel.conf.
+                  Defaults to /etc/redis on Linux and /usr/local/etc on FreeBSD.
+          service:
+            type: dict
+            description: System service names for Redis server and Sentinel.
+            options:
+              server:
+                type: str
+                description: >
+                  Redis server service name.
+                  Defaults to redis-server on Linux and redis on FreeBSD.
+              sentinel:
+                type: str
+                description: Redis Sentinel service name.
+                default: redis-sentinel
+          "redis.conf":
+            type: dict
+            description: >
+              Redis server configuration as key-value pairs. Each key is written
+              to redis.conf with the given value. Empty or false values remove
+              the line.
+          "sentinel.conf":
+            type: dict
+            description: >
+              Redis Sentinel configuration as key-value pairs. Each key is
+              written to sentinel.conf. Only used when redis.replication.sentinel
+              is true.
+          replication:
+            type: dict
+            description: Replication and Sentinel options.
+            options:
+              sentinel:
+                type: bool
+                description: Whether to install and configure Redis Sentinel.
+                default: false
+          repository:
+            type: dict
+            description: >
+              Package repository configuration (e.g. for custom APT sources).
+            options:
+              apt:
+                type: dict
+                description: APT repository options.
+                options:
+                  key_url:
+                    type: str
+                    description: URL of the APT repository signing key.
+                  repository:
+                    type: str
+                    description: APT repository line (e.g. deb http://...).

@@ -1,0 +1,27 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    redis:
+      redis.conf:
+        bind: 127.0.0.1
+        port: 6379
+        masterauth:
+        requirepass:
+      replication:
+        sentinel: yes
+      sentinel.conf:
+        bind: 127.0.0.1
+        port: 26379
+        protected-mode: "yes"
+        "sentinel monitor": "molecule 127.0.0.1 6379 2"
+        "sentinel auth-pass":
+        "sentinel config-epoch": "molecule 0"
+        "sentinel leader-epoch": "molecule 0"
+  environment:
+    GITHUB_ACTIONS: "maybe"
+    ANSIBLE_HASH_BEHAVIOUR: merge
+  tasks:
+    - name: "Include ansible-proserver-redis"
+      ansible.builtin.include_role:
+        name: "ansible-proserver-redis"
