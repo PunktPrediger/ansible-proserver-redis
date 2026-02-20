@@ -1,3 +1,12 @@
-- import_tasks: install.yaml
-- import_tasks: service.yaml
-- import_tasks: config.yaml
+---
+- name: Install Redis
+  ansible.builtin.include_tasks: install.yaml
+
+- name: Configure Redis service
+  ansible.builtin.include_tasks: service.yaml
+
+- name: Configure Redis
+  ansible.builtin.include_tasks: config.yaml
+
+- name: Configure Logrotate for Redis
+  ansible.builtin.include_tasks: logrotate.yaml

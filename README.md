@@ -1,40 +1,73 @@
-# [proserver-ansible-redis](https://github.com/punktDe/proserver-ansible-mariadb)
+<!-- BEGIN_ANSIBLE_DOCS -->
+<!--
+Do not edit README.md directly!
 
-Ansible role to configure Redis on a proServer.
+This file is generated automatically by aar-doc and will be overwritten.
 
-## Requirements
+Please edit meta/argument_specs.yml instead.
+-->
+# ansible-proserver-redis
 
-- proServer or Debian/Ubuntu Linux
-- Ansible >=2.9.0
-- Ansible option `hash_behaviour` set to `merge`
+redis role for Proserver
 
-## Configuration
+## Supported Operating Systems
 
-**1)** Add the role to your playbook.
-You could add this repository as submodule to your Ansible project's Git repository.
+- Debian 12, 13
+- Ubuntu 24.04, 22.04
+- FreeBSD [Proserver](https://infrastructure.punkt.de/de/produkte/proserver.html)
 
+## Role Arguments
+
+
+
+#### Options for `redis`
+
+|Option|Description|Type|Required|Default|
+|---|---|---|---|---|
+| `prefix` | Path and naming prefixes (config directory, etc.). | dict of 'prefix' options | no |  |
+| `service` | System service names for Redis server and Sentinel. | dict of 'service' options | no |  |
+| `redis.conf` | Redis server configuration as key-value pairs. Each key is written to redis.conf with the given value. Empty or false values remove the line. | dict | no |  |
+| `sentinel.conf` | Redis Sentinel configuration as key-value pairs. Each key is written to sentinel.conf. Only used when redis.replication.sentinel is true. | dict | no |  |
+| `replication` | Replication and Sentinel options. | dict of 'replication' options | no |  |
+
+#### Options for `redis.prefix`
+
+|Option|Description|Type|Required|Default|
+|---|---|---|---|---|
+| `config` | Directory containing redis.conf and sentinel.conf. Defaults to /etc/redis on Linux and /usr/local/etc on FreeBSD. | str | no |  |
+
+#### Options for `redis.service`
+
+|Option|Description|Type|Required|Default|
+|---|---|---|---|---|
+| `server` | Redis server service name. Defaults to redis-server on Linux and redis on FreeBSD. | str | no |  |
+| `sentinel` | Redis Sentinel service name. Defaults to redis-sentinel on Linux and sentinel on FreeBSD. | str | no | redis-sentinel |
+
+#### Options for `redis.replication`
+
+|Option|Description|Type|Required|Default|
+|---|---|---|---|---|
+| `sentinel` | Whether to install and configure Redis Sentinel. | bool | no | False |
+
+## Dependencies
+None.
+
+## Installation
+Add this role to the requirements.yml of your playbook as follows:
+```yaml
+roles:
+  - name: ansible-proserver-redis
+    src: https://github.com/punktDe/ansible-proserver-redis
 ```
-git submodule add https://github.com/punktDe/proserver-ansible-redis.git roles/redis
-```
+
+Afterwards, install the role by running `ansible-galaxy install -r requirements.yml`
+
+## Example Playbook
 
 ```yaml
-- name: redis
-  hosts: all
-  become: yes
+- hosts: all
   roles:
-    - redis
+    - name: redis
 ```
 
-**2)** (Optional) Reconfigure Redis (e.g. in group_vars)
-
-[List of available redis.conf options](https://raw.githubusercontent.com/antirez/redis/unstable/redis.conf)
-
-```yaml
-redis:
-  redis.conf:
-    databases: 64
-```
-
-## Replication
-
-See [REPLICATION.md](documentation/REPLICATION.md).
+<!-- END_ANSIBLE_DOCS -->

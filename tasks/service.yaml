@@ -1,12 +1,12 @@
+---
 - name: Enable Redis service
-  service:
+  ansible.builtin.service:
     name: "{{ redis.service.server }}"
     enabled: yes
 
 - name: Enable Redis Sentinel
   when:
-    - ansible_system == 'Linux'
     - redis.replication.sentinel
-  service:
+  ansible.builtin.service:
     name: "{{ redis.service.sentinel }}"
     enabled: yes

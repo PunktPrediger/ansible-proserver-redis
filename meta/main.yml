@@ -1,10 +1,9 @@
 ---
-dependencies: []
-
 galaxy_info:
-  author: "Punkt.de"
+  author: "punkt.de"
   license: "MIT"
-  description: "Redis role for Proserver"
-  role_name: "proserver_redis"
+  role_name: redis
+  description: "redis role for Proserver"
   namespace: "punktde"
-  min_ansible_version: "2.15"
+  min_ansible_version: "2.19"
+  platforms: []

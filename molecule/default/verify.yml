@@ -1,0 +1,84 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  vars:
+    # Match converge.yml so Sentinel checks run when Sentinel is enabled
+    redis:
+      replication:
+        sentinel: true
+      service:
+        sentinel: redis-sentinel
+  tasks:
+    - name: Redis server service is running
+      ansible.builtin.service_facts:
+
+    - name: Redis server is started
+      ansible.builtin.assert:
+        that: ansible_facts.services['redis-server.service'].state == 'running'
+        fail_msg: "Redis server service is not running"
+
+    - name: Redis responds to PING
+      ansible.builtin.command:
+        cmd: redis-cli ping
+      register: redis_ping
+      changed_when: false
+
+    - name: Redis PING returns PONG
+      ansible.builtin.assert:
+        that: redis_ping.stdout == 'PONG'
+        fail_msg: "Redis did not respond with PONG (got {{ redis_ping.stdout }})"
+
+    - name: Redis SET/GET works
+      ansible.builtin.command:
+        cmd: redis-cli set molecule_test_key molecule_test_value
+      register: redis_set
+      changed_when: false
+
+    - name: Redis SET succeeded
+      ansible.builtin.assert:
+        that: redis_set.rc == 0
+        fail_msg: "Redis SET failed"
+
+    - name: Redis GET returns expected value
+      ansible.builtin.command:
+        cmd: redis-cli get molecule_test_key
+      register: redis_get
+      changed_when: false
+
+    - name: Redis GET returns correct value
+      ansible.builtin.assert:
+        that: redis_get.stdout == 'molecule_test_value'
+        fail_msg: "Redis GET returned '{{ redis_get.stdout }}', expected 'molecule_test_value'"
+
+    - name: Redis Sentinel service is running
+      when: redis.replication.sentinel | default(false) | bool
+      ansible.builtin.assert:
+        that: ansible_facts.services[(redis.service.sentinel ~ '.service')].state == 'running'
+        fail_msg: "Redis Sentinel service is not running"
+
+    - name: Redis Sentinel responds to PING
+      when: redis.replication.sentinel | default(false) | bool
+      ansible.builtin.command:
+        cmd: redis-cli -p 26379 ping
+      register: sentinel_ping
+      changed_when: false
+
+    - name: Redis Sentinel PING returns PONG
+      when: redis.replication.sentinel | default(false) | bool
+      ansible.builtin.assert:
+        that: sentinel_ping.stdout == 'PONG'
+        fail_msg: "Redis Sentinel did not respond with PONG (got {{ sentinel_ping.stdout }})"
+
+    - name: Redis Sentinel reports monitored master
+      when: redis.replication.sentinel | default(false) | bool
+      ansible.builtin.command:
+        cmd: redis-cli -p 26379 sentinel master molecule
+      register: sentinel_master
+      changed_when: false
+
+    - name: Redis Sentinel master output is present
+      when: redis.replication.sentinel | default(false) | bool
+      ansible.builtin.assert:
+        that: sentinel_master.rc == 0 and sentinel_master.stdout | length > 0
+        fail_msg: "Redis Sentinel did not report master (molecule)"

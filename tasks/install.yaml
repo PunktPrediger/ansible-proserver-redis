@@ -1,42 +1,22 @@
-- when: ansible_os_family == 'Debian'
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    cache_valid_time: 3600
+
+- name: Install Redis
+  notify: Start Redis
+  ansible.builtin.apt:
+    name: redis-server
+
+- when: redis.replication.sentinel
   block:
-    - when: redis.repository.apt.repository
-      block:
-        - name: Install GPG
-          apt:
-            name: gpg
+    - name: Install Redis Sentinel
+      ansible.builtin.apt:
+        name: redis-sentinel
+      register: redis_install_sentinel_apt_result
 
-        - name: Add Redis repository key
-          apt_key:
-            url: "{{ redis.repository.apt.key_url }}"
-
-        - name: Add Redis repository
-          loop:
-            - /etc/apt/sources.list.d/redis.list
-          copy:
-            content: |
-              {{ redis.repository.apt.repository }}
-            dest: "{{ item }}"
-          register: redis_add_apt_repository
-
-        - name: Update apt cache
-          apt:
-            update_cache: yes
-          when: redis_add_apt_repository.changed
-
-    - name: Install Redis
-      apt:
-        name: redis-server
-
-    - when: redis.replication.sentinel
-      block:
-        - name: Install Redis Sentinel
-          apt:
-            name: redis-sentinel
-          register: redis_install_sentinel_apt_result
-
-        - name: Stop Redis Sentinel
-          when: redis_install_sentinel_apt_result.changed
-          service:
-            name: "{{ redis.service.sentinel }}"
-            state: stopped
+    - name: Stop Redis Sentinel
+      when: redis_install_sentinel_apt_result.changed
+      ansible.builtin.service:
+        name: "{{ redis.service.sentinel }}"
+        state: stopped

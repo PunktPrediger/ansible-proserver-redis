@@ -1,0 +1,19 @@
+---
+- name: Ensure the logrotate directory exists
+  ansible.builtin.file:
+    path: "{{ redis.prefix.config }}/logrotate.d"
+    state: directory
+    owner: root
+    mode: "0755"
+
+- name: Ensure redis logrotation is configured
+  ansible.builtin.copy:
+    content: |
+      /var/log/redis/*.log {
+        missingok
+        delaycompress
+        notifempty
+      }
+    dest: "{{ redis.prefix.config }}/logrotate.d/redis.conf"
+    owner: root
+    mode: "0644"

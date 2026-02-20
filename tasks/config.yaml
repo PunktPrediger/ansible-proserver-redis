@@ -1,10 +1,11 @@
+---
 - name: Configure Redis
   vars:
     config_filepath: "{{ redis.prefix.config }}/redis.conf"
-  loop: "{{ redis['redis.conf']|dict2items }}"
+  loop: "{{ redis['redis.conf'] | dict2items }}"
   loop_control:
     label: "{{ config_filepath }} {{ item.key }}={{ item.value }}"
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ config_filepath }}"
     regexp: "^{{ item.key }}[\\s\\t]"
     line: "{{ item.key }} {{ item.value }}"
@@ -15,12 +16,33 @@
   vars:
     config_filepath: "{{ redis.prefix.config }}/sentinel.conf"
   when: redis.replication.sentinel
-  loop: "{{ redis['sentinel.conf']|dict2items }}"
+  loop: "{{ redis['sentinel.conf'] | dict2items }}"
   loop_control:
     label: "{{ config_filepath }} {{ item.key }}={{ item.value }}"
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ config_filepath }}"
     regexp: "^{{ item.key }}[\\s\\t]"
     line: "{{ item.key }} {{ item.value }}"
     state: "{{ 'present' if item.value else 'absent' }}"
   notify: Restart Redis Sentinel
+
+- name: Replace "mymaster" lines with the name of the current master
+  when: redis.replication.sentinel and redis_replication_main_name is defined and redis_replication_main_name != None
+  ansible.builtin.replace:
+    path: "{{ redis.prefix.config }}/sentinel.conf"
+    regexp: "mymaster"
+    replace: "{{ redis_replication_main_name }}"
+
+- name: Check if user proserver exists
+  ansible.builtin.command: id proserver
+  register: proserver_user_check
+  changed_when: false
+  failed_when: false
+
+- name: Ensure user proserver is appended to group redis
+  when: proserver_user_check.rc == 0
+  notify: Restart Redis
+  ansible.builtin.user:
+    name: proserver
+    groups: redis
+    append: yes
