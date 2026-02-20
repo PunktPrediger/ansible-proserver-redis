@@ -1,6 +1,7 @@
 ---
 - name: Install Redis
   ansible.builtin.include_tasks: install.yaml
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Configure Redis service
   ansible.builtin.include_tasks: service.yaml
